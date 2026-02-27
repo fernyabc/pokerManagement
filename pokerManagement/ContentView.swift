@@ -1,19 +1,27 @@
 import SwiftUI
 import CoreMedia
+import SwiftData
 
 struct ContentView: View {
+    // MARK: - State Objects & Environment
     @StateObject private var streamService = StreamCaptureService()
     @StateObject private var visionService = VisionService()
+    @StateObject private var feedbackService = FeedbackService()
+    @StateObject private var backendService: BackendService
     
-    // Using @AppStorage to react to settings changes
+    @Environment(\.modelContext) private var modelContext
+    
+    // MARK: - AppStorage for Settings
     @AppStorage("useMockSolver") private var useMockSolver = true
     @AppStorage("solverAPIKey") private var solverAPIKey = ""
     @AppStorage("solverEndpoint") private var solverEndpoint = "http://localhost:8000/v1/solve"
-    
-    // We create the BackendService instance manually since we want it to react to AppStorage changes
-    @StateObject private var backendService = BackendService(solver: MockGTOSolver())
-    @StateObject private var feedbackService = FeedbackService()
-    
+
+    init() {
+        // Initialize backendService in the init, as it depends on AppStorage values.
+        // The default here is Mock, but it gets updated immediately .onAppear via updateBackendSolver()
+        _backendService = StateObject(wrappedValue: BackendService(solver: MockGTOSolver()))
+    }
+
     var body: some View {
         TabView {
             // Main Dashboard Tab
@@ -22,19 +30,11 @@ struct ContentView: View {
                     Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
                     
                     VStack(spacing: 16) {
-                        // Connection Status Banner
                         statusBanner
-                        
-                        // Poker Table Visualizer
                         PokerTableView(state: visionService.currentState)
                             .padding(.horizontal)
-                        
-                        // Suggestion Card
                         suggestionCard
-                        
                         Spacer()
-                        
-                        // Capture Controls
                         Button(action: {
                             if streamService.isStreaming {
                                 streamService.stopCapture()
@@ -67,24 +67,40 @@ struct ContentView: View {
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
+            
+            // History Tab
+            HistoryView()
+                .tabItem {
+                    Label("History", systemImage: "clock.arrow.circlepath")
+                }
         }
-        .onAppear {
-            setupServices()
-        }
-        .onChange(of: useMockSolver) { _ in updateBackendSolver() }
-        .onChange(of: solverEndpoint) { _ in updateBackendSolver() }
-        .onChange(of: solverAPIKey) { _ in updateBackendSolver() }
-        
-        // Trigger Backend on vision state changes
-        .onChange(of: visionService.currentState.holeCards) { newCards in
-            guard !newCards.isEmpty else { return }
+        .onAppear(perform: setupServices)
+        .onChange(of: useMockSolver) { updateBackendSolver() }
+        .onChange(of: solverEndpoint) { updateBackendSolver() }
+        .onChange(of: solverAPIKey) { updateBackendSolver() }
+        .onChange(of: visionService.currentState.holeCards) {
+            // Do not query GTO if cards are not detected
+            guard !visionService.currentState.holeCards.isEmpty else { return }
             backendService.queryGTO(state: visionService.currentState)
         }
-        
-        // Trigger Audio Feedback on new suggestions
-        .onChange(of: backendService.latestSuggestion?.action) { action in
+        .onChange(of: backendService.latestSuggestion) {
             guard let suggestion = backendService.latestSuggestion else { return }
+            
+            // 1. Give audio feedback
             feedbackService.speakSuggestion(suggestion)
+            
+            // 2. Save the hand history to the database
+            let history = HandHistory(
+                holeCards: visionService.currentState.holeCards,
+                communityCards: visionService.currentState.communityCards,
+                numPlayers: visionService.currentState.numPlayers,
+                myPosition: visionService.currentState.myPosition,
+                potSize: visionService.currentState.potSize,
+                recommendedAction: suggestion.action,
+                recommendedRaiseSize: suggestion.raiseSize,
+                ev: suggestion.ev
+            )
+            modelContext.insert(history)
         }
     }
     
@@ -150,6 +166,11 @@ struct ContentView: View {
                 .cornerRadius(16)
                 .shadow(color: .black.opacity(0.05), radius: 5)
                 .padding(.horizontal)
+            } else {
+                // Placeholder when there's no suggestion yet
+                Text("Start the stream to get GTO suggestions.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
         }
         .frame(minHeight: 140)
@@ -159,7 +180,7 @@ struct ContentView: View {
     
     private func setupServices() {
         updateBackendSolver()
-        streamService.onFrameCaptured = { (buffer: CMSampleBuffer) in
+        streamService.onFrameCaptured = { buffer in
             visionService.processFrame(buffer)
         }
     }
@@ -173,6 +194,15 @@ struct ContentView: View {
     }
 }
 
+// Add a specific Equatable conformance for GTOSuggestion to use it in .onChange
+extension GTOSuggestion: Equatable {
+    static func == (lhs: GTOSuggestion, rhs: GTOSuggestion) -> Bool {
+        return lhs.action == rhs.action && lhs.raiseSize == rhs.raiseSize && lhs.ev == rhs.ev
+    }
+}
+
+
 #Preview {
     ContentView()
+        .modelContainer(for: HandHistory.self, inMemory: true)
 }
