@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct pokerManagementApp: App {
@@ -6,5 +7,6 @@ struct pokerManagementApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: HandHistory.self)
     }
 }

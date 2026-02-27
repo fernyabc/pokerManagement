@@ -10,6 +10,8 @@
 		00E085652D4CB93C23D34EA8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A052FE9323A67A56A7DC270 /* SettingsView.swift */; };
 		166215688DDCCAEA09176302 /* VisionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C774DEE901FA47B2C21217 /* VisionService.swift */; };
 		18151512BB9E5D32405C9324 /* pokerManagementApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4FC856DBE25DE884AD3975 /* pokerManagementApp.swift */; };
+		19BEF523A80B737E16F4E0CE /* HandHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A0A9B4F63CE0A8A06B45D9 /* HandHistory.swift */; };
+		541F03B366FCFBD582DF3008 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536C29679AA2BB17B6E0435E /* HistoryView.swift */; };
 		79138B07A4CED7CA67D39EC6 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464BA9BD80F440E9E41A4F54 /* BackendService.swift */; };
 		7EB2D20A57E2CC977949817D /* GTOSolverAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF33429679F899A615C4441 /* GTOSolverAPI.swift */; };
 		A0B632C243FACCA170BFB6A2 /* StreamCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E591CFFE3D6FFE22EED3AA /* StreamCaptureService.swift */; };
@@ -27,6 +29,8 @@
 		464BA9BD80F440E9E41A4F54 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
 		4AF33429679F899A615C4441 /* GTOSolverAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GTOSolverAPI.swift; sourceTree = "<group>"; };
 		52E591CFFE3D6FFE22EED3AA /* StreamCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamCaptureService.swift; sourceTree = "<group>"; };
+		536C29679AA2BB17B6E0435E /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		72A0A9B4F63CE0A8A06B45D9 /* HandHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandHistory.swift; sourceTree = "<group>"; };
 		79DFD6AD764F158455A7CE5A /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		881860E452BB39AA51D5DA63 /* FeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackService.swift; sourceTree = "<group>"; };
 		E5F042579C3244F00E12B810 /* pokerManagement.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = pokerManagement.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,10 +63,19 @@
 			isa = PBXGroup;
 			children = (
 				79DFD6AD764F158455A7CE5A /* CardView.swift */,
+				536C29679AA2BB17B6E0435E /* HistoryView.swift */,
 				FF0A559CB2A09E2A821D3B4B /* PokerTableView.swift */,
 				0A052FE9323A67A56A7DC270 /* SettingsView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		69A78471DB780396FBFCF49B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				72A0A9B4F63CE0A8A06B45D9 /* HandHistory.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		906212ABB5CE5EF4EF6A10E5 /* pokerManagement */ = {
@@ -71,6 +84,7 @@
 				14F036D9B56C447AD0E07F8C /* ContentView.swift */,
 				E83B6B5132DBC8481C557422 /* Info.plist */,
 				1E4FC856DBE25DE884AD3975 /* pokerManagementApp.swift */,
+				69A78471DB780396FBFCF49B /* Models */,
 				1DE98F7E77B03C2C57215814 /* Services */,
 				432EE7046D940233EF4422CF /* Views */,
 			);
@@ -143,6 +157,8 @@
 				CA1753113F32DB6540428A9D /* ContentView.swift in Sources */,
 				E74AF99583497CD8F65705FE /* FeedbackService.swift in Sources */,
 				7EB2D20A57E2CC977949817D /* GTOSolverAPI.swift in Sources */,
+				19BEF523A80B737E16F4E0CE /* HandHistory.swift in Sources */,
+				541F03B366FCFBD582DF3008 /* HistoryView.swift in Sources */,
 				F2735292D7371D1A30B98A14 /* PokerTableView.swift in Sources */,
 				00E085652D4CB93C23D34EA8 /* SettingsView.swift in Sources */,
 				A0B632C243FACCA170BFB6A2 /* StreamCaptureService.swift in Sources */,
