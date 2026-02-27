@@ -1,0 +1,16 @@
+name: pokerManagement
+options:
+  bundleIdPrefix: com.pokermanagement
+targets:
+  pokerManagement:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources: [pokerManagement]
+    info:
+      path: pokerManagement/Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations: {}
