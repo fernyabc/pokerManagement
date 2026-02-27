@@ -57,3 +57,27 @@ This PRD is synthesized from the following reference architectures:
 - **Phase 2:** Implement the vision pipeline workaround from `meta-vision-project` and integrate card detection from `pokerglass`.
 - **Phase 3:** Backend solver integration based on `pokerAssist` logic and complete the end-to-end loop (Camera -> Backend -> Audio feedback).
 - **Phase 4:** Advanced features (chip counting, automated action tracking, player profiling) similar to `AR-Mahjong-Assistant`.
+
+## 8. Future / Advanced Features (Roadmap & TODOs)
+
+### 8.1. Advanced Computer Vision Pipeline
+- [ ] **CoreML YOLOv8 Integration:** Replace Apple Vision stubs with a trained object-detection model (`yolov8-playing-cards.mlmodel`) to detect cards in real-time.
+- [ ] **Chip Stack & Pot Counting:** Train the model to identify poker chips by color/size to estimate the exact pot size and opponent chip stacks visually without manual input.
+- [ ] **Automated Action Tracking:** Visually track when a player tosses chips into the middle or mucks their cards to automatically update the state (Fold, Call, Raise).
+- [ ] **Dealer Button & Position Detection:** Detect the physical dealer button on the table to automatically calculate user position (UTG, Hijack, Button, etc.).
+
+### 8.2. Live Stream Interception (Ray-Ban Meta Workaround)
+- [ ] **WebRTC / RTMP Server Setup:** Implement stream-ripping logic. Set up a local server to intercept a private Instagram/WhatsApp live stream from the glasses and feed raw frames directly into the iOS VisionService.
+
+### 8.3. Backend & GTO Solver Upgrades
+- [ ] **PioSolver / GTO+ Integration:** Write a Python bridge in the backend that translates the JSON poker state into a PioSolver script, runs the simulation, and parses the exact EV matrix back to the iOS app.
+- [ ] **LLM Heuristics Engine:** Integrate OpenAI's `GPT-4o` or Google's `Gemini 1.5 Pro` into the backend. The LLM can interpret board states and explain *why* a play is good in plain English.
+- [ ] **Player Profiling (HUD):** Keep a running database of opponents. Track their VPIP (Voluntarily Put in Pot) and PFR (Pre-Flop Raise) over the session, allowing the GTO solver to adjust its suggestions based on whether the opponent is "tight" or "loose".
+
+### 8.4. Stealth & Feedback Mechanisms
+- [ ] **Apple Watch Companion App:** If audio TTS is too risky or loud, build a watchOS companion app that delivers suggestions via stealthy haptic taps (e.g., 1 tap = Fold, 2 taps = Call, 3 taps = Raise).
+- [ ] **Lock Screen / Dynamic Island UI:** Implement iOS Live Activities to glance at the iPhone resting on the table to see the GTO matrix without unlocking the phone.
+- [ ] **AR Visual Overlays:** Support glasses with physical displays (like Brilliant Labs *Frame* or XREAL) to draw AR overlays (EV percentages floating above the cards) like the *AR-Mahjong-Assistant*.
+
+### 8.5. Session Management & Analytics
+- [ ] **Hand History Logger:** Automatically save every detected hand, the board runout, action taken, and the GTO suggestion to a local database (CoreData/SwiftData) for post-game review and leak analysis.
