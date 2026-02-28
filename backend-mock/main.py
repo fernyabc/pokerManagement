@@ -1,3 +1,8 @@
+import asyncio
+from fastapi import WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from typing import List, Optional
@@ -5,6 +10,28 @@ import random
 import time
 
 app = FastAPI(title="Poker GTO Solver Mock API")
+
+# Setup for serving the HTML template
+templates = Jinja2Templates(directory="templates")
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: str, sender: WebSocket):
+        for connection in self.active_connections:
+            if connection is not sender:
+                await connection.send_text(message)
+
+manager = ConnectionManager()
+
 
 # Replicate the DetectedPokerState struct from iOS
 class PokerState(BaseModel):
@@ -66,3 +93,20 @@ async def solve_poker_state(state: PokerState, authorization: Optional[str] = He
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    with open("templates/index.html") as f:
+        return HTMLResponse(content=f.read(), status_code=200)
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Broadcast the signaling message to the other peer
+            await manager.broadcast(data, websocket)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
