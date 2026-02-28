@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added [2026-02-28 00:10:14]
+- Implemented **LLM Heuristics Engine** (`llm_engine.py`) using OpenAI API to generate plain-English strategic reasoning for GTO suggestions.
+- Built **Player Profiling HUD** (`player_profile.py`) backend structure to track VPIP (Voluntarily Put in Pot) and PFR (Pre-Flop Raise) across hands.
+- Updated FastAPI `/v1/solve` endpoint to dynamically adjust EV matrix base calculations depending on the active opponent's HUD label (e.g. LAG, TAG, Nit, Calling Station).
+- Added `/v1/hud/update` endpoint for logging and mutating player actions.
+- Included graceful mock fallback in `LLMHeuristicsEngine` when `OPENAI_API_KEY` is not present.
+
 ### Added [2026-02-28 00:04:36]
 - Implemented Live Activities and Dynamic Island support for stealthy feedback mechanisms.
 - Created `PokerWidgetExtension` target in `project.yml` with `NSSupportsLiveActivities` enabled for xcodegen.
