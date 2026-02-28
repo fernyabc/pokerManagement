@@ -8,14 +8,19 @@
 
 /* Begin PBXBuildFile section */
 		00E085652D4CB93C23D34EA8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A052FE9323A67A56A7DC270 /* SettingsView.swift */; };
+		01AA49EEF7B2B0D413984321 /* CardDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5334F0CFE3393C587A50DF /* CardDetectionService.swift */; };
 		1122211E996154CD1B8D098B /* WebRTCStreamCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660C37113E9A0A8DE6E6EDB9 /* WebRTCStreamCaptureService.swift */; };
 		166215688DDCCAEA09176302 /* VisionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C774DEE901FA47B2C21217 /* VisionService.swift */; };
 		18151512BB9E5D32405C9324 /* pokerManagementApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4FC856DBE25DE884AD3975 /* pokerManagementApp.swift */; };
-		19BEF523A80B737E16F4E0CE /* HandHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A0A9B4F63CE0A8A06B45D9 /* HandHistory.swift */; };
+		21529B2ABFA7EB7B9C7CBA42 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC03FB9323EF65B4C5DF8CB /* LiveActivityManager.swift */; };
 		239E21EA5DE71D352C58289F /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 174A258EA7A12BAE64C98382 /* WebRTC */; };
+		28D8FA1671941895E8160245 /* HandHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6F33B2A11EDFA65855DA10 /* HandHistory.swift */; };
 		541F03B366FCFBD582DF3008 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536C29679AA2BB17B6E0435E /* HistoryView.swift */; };
+		58C13A09967450C29A43DB6A /* PokerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B496DAE8D17D7F5D71FDF8D /* PokerWidget.swift */; };
+		78B7DAB78C02648F2C1402E0 /* PokerSuggestionAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0730EE04EB5F1D447534736 /* PokerSuggestionAttributes.swift */; };
 		79138B07A4CED7CA67D39EC6 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464BA9BD80F440E9E41A4F54 /* BackendService.swift */; };
 		7EB2D20A57E2CC977949817D /* GTOSolverAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF33429679F899A615C4441 /* GTOSolverAPI.swift */; };
+		9D45FD3BCFB74F18058DAB3E /* PokerSuggestionAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0730EE04EB5F1D447534736 /* PokerSuggestionAttributes.swift */; };
 		CA1753113F32DB6540428A9D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F036D9B56C447AD0E07F8C /* ContentView.swift */; };
 		DD1F9890B6B86A7036488FD9 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DFD6AD764F158455A7CE5A /* CardView.swift */; };
 		E74AF99583497CD8F65705FE /* FeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881860E452BB39AA51D5DA63 /* FeedbackService.swift */; };
@@ -27,16 +32,22 @@
 		0A052FE9323A67A56A7DC270 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		14F036D9B56C447AD0E07F8C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1E4FC856DBE25DE884AD3975 /* pokerManagementApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pokerManagementApp.swift; sourceTree = "<group>"; };
+		265A013E666B667DBE39EA67 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2A6F33B2A11EDFA65855DA10 /* HandHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandHistory.swift; sourceTree = "<group>"; };
+		2F5334F0CFE3393C587A50DF /* CardDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetectionService.swift; sourceTree = "<group>"; };
 		42C774DEE901FA47B2C21217 /* VisionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionService.swift; sourceTree = "<group>"; };
 		464BA9BD80F440E9E41A4F54 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
 		4AF33429679F899A615C4441 /* GTOSolverAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GTOSolverAPI.swift; sourceTree = "<group>"; };
 		536C29679AA2BB17B6E0435E /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		660C37113E9A0A8DE6E6EDB9 /* WebRTCStreamCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebRTCStreamCaptureService.swift; sourceTree = "<group>"; };
-		72A0A9B4F63CE0A8A06B45D9 /* HandHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandHistory.swift; sourceTree = "<group>"; };
+		693B0D83F71A79C40FEB35A7 /* PokerWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PokerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6B496DAE8D17D7F5D71FDF8D /* PokerWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokerWidget.swift; sourceTree = "<group>"; };
 		79DFD6AD764F158455A7CE5A /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		881860E452BB39AA51D5DA63 /* FeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackService.swift; sourceTree = "<group>"; };
+		9BC03FB9323EF65B4C5DF8CB /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		E5F042579C3244F00E12B810 /* pokerManagement.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = pokerManagement.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E83B6B5132DBC8481C557422 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F0730EE04EB5F1D447534736 /* PokerSuggestionAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokerSuggestionAttributes.swift; sourceTree = "<group>"; };
 		FF0A559CB2A09E2A821D3B4B /* PokerTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokerTableView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -56,17 +67,31 @@
 		017E1EA1CB537C363F971FE7 = {
 			isa = PBXGroup;
 			children = (
+				144A233D1B08A1F2D1EEB9B6 /* Models */,
 				906212ABB5CE5EF4EF6A10E5 /* pokerManagement */,
+				9CD6F046EB31C7A753014F6A /* PokerWidget */,
 				A4063CD895D72AC7F7D2F1E1 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		144A233D1B08A1F2D1EEB9B6 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2A6F33B2A11EDFA65855DA10 /* HandHistory.swift */,
+				F0730EE04EB5F1D447534736 /* PokerSuggestionAttributes.swift */,
+			);
+			name = Models;
+			path = pokerManagement/Models;
 			sourceTree = "<group>";
 		};
 		1DE98F7E77B03C2C57215814 /* Services */ = {
 			isa = PBXGroup;
 			children = (
 				464BA9BD80F440E9E41A4F54 /* BackendService.swift */,
+				2F5334F0CFE3393C587A50DF /* CardDetectionService.swift */,
 				881860E452BB39AA51D5DA63 /* FeedbackService.swift */,
 				4AF33429679F899A615C4441 /* GTOSolverAPI.swift */,
+				9BC03FB9323EF65B4C5DF8CB /* LiveActivityManager.swift */,
 				42C774DEE901FA47B2C21217 /* VisionService.swift */,
 				660C37113E9A0A8DE6E6EDB9 /* WebRTCStreamCaptureService.swift */,
 			);
@@ -84,31 +109,33 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		69A78471DB780396FBFCF49B /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				72A0A9B4F63CE0A8A06B45D9 /* HandHistory.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		906212ABB5CE5EF4EF6A10E5 /* pokerManagement */ = {
 			isa = PBXGroup;
 			children = (
 				14F036D9B56C447AD0E07F8C /* ContentView.swift */,
 				E83B6B5132DBC8481C557422 /* Info.plist */,
 				1E4FC856DBE25DE884AD3975 /* pokerManagementApp.swift */,
-				69A78471DB780396FBFCF49B /* Models */,
+				144A233D1B08A1F2D1EEB9B6 /* Models */,
 				1DE98F7E77B03C2C57215814 /* Services */,
 				432EE7046D940233EF4422CF /* Views */,
 			);
 			path = pokerManagement;
 			sourceTree = "<group>";
 		};
+		9CD6F046EB31C7A753014F6A /* PokerWidget */ = {
+			isa = PBXGroup;
+			children = (
+				265A013E666B667DBE39EA67 /* Info.plist */,
+				6B496DAE8D17D7F5D71FDF8D /* PokerWidget.swift */,
+			);
+			path = PokerWidget;
+			sourceTree = "<group>";
+		};
 		A4063CD895D72AC7F7D2F1E1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				E5F042579C3244F00E12B810 /* pokerManagement.app */,
+				693B0D83F71A79C40FEB35A7 /* PokerWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,6 +143,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		8263D80828593D5834A3C7F0 /* PokerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F84CC7C0773DA8D2DFEB26ED /* Build configuration list for PBXNativeTarget "PokerWidgetExtension" */;
+			buildPhases = (
+				4E5F7896F4023489A2BA11D4 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PokerWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = PokerWidgetExtension;
+			productReference = 693B0D83F71A79C40FEB35A7 /* PokerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		9AC46BE4A3CEECBCF62F9480 /* pokerManagement */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1DADE9A01EDD06805778F392 /* Build configuration list for PBXNativeTarget "pokerManagement" */;
@@ -163,23 +207,36 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				8263D80828593D5834A3C7F0 /* PokerWidgetExtension */,
 				9AC46BE4A3CEECBCF62F9480 /* pokerManagement */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4E5F7896F4023489A2BA11D4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78B7DAB78C02648F2C1402E0 /* PokerSuggestionAttributes.swift in Sources */,
+				58C13A09967450C29A43DB6A /* PokerWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB2A47E3F19C14D257302823 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				79138B07A4CED7CA67D39EC6 /* BackendService.swift in Sources */,
+				01AA49EEF7B2B0D413984321 /* CardDetectionService.swift in Sources */,
 				DD1F9890B6B86A7036488FD9 /* CardView.swift in Sources */,
 				CA1753113F32DB6540428A9D /* ContentView.swift in Sources */,
 				E74AF99583497CD8F65705FE /* FeedbackService.swift in Sources */,
 				7EB2D20A57E2CC977949817D /* GTOSolverAPI.swift in Sources */,
-				19BEF523A80B737E16F4E0CE /* HandHistory.swift in Sources */,
+				28D8FA1671941895E8160245 /* HandHistory.swift in Sources */,
 				541F03B366FCFBD582DF3008 /* HistoryView.swift in Sources */,
+				21529B2ABFA7EB7B9C7CBA42 /* LiveActivityManager.swift in Sources */,
+				9D45FD3BCFB74F18058DAB3E /* PokerSuggestionAttributes.swift in Sources */,
 				F2735292D7371D1A30B98A14 /* PokerTableView.swift in Sources */,
 				00E085652D4CB93C23D34EA8 /* SettingsView.swift in Sources */,
 				166215688DDCCAEA09176302 /* VisionService.swift in Sources */,
@@ -191,6 +248,22 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		074B1F8B1C0A9290ECBA3161 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = PokerWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pokermanagement.PokerWidgetExtension;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		120C337D2CDE44B095305F5E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -308,6 +381,22 @@
 			};
 			name = Release;
 		};
+		8C6EC02C687AC8B1A23EE636 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = PokerWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pokermanagement.PokerWidgetExtension;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		AD365F94A05B1CA666EFC413 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -359,6 +448,15 @@
 			buildConfigurations = (
 				120C337D2CDE44B095305F5E /* Debug */,
 				7D9CB64E6CA2F2DD4A858C08 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F84CC7C0773DA8D2DFEB26ED /* Build configuration list for PBXNativeTarget "PokerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				074B1F8B1C0A9290ECBA3161 /* Debug */,
+				8C6EC02C687AC8B1A23EE636 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

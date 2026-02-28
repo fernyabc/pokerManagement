@@ -87,7 +87,14 @@ struct ContentView: View {
                 ev: suggestion.ev
             )
             modelContext.insert(history)
-        }
+            
+            // 3. Update Live Activity for stealth viewing
+            LiveActivityManager.shared.updateActivity(
+                action: suggestion.action,
+                raiseSize: suggestion.raiseSize,
+                ev: suggestion.ev,
+                reasoning: suggestion.reasoning
+            )
     }
     
     private var statusBanner: some View {
@@ -140,6 +147,11 @@ struct ContentView: View {
         updateBackendSolver()
         streamService.onFrameCaptured = { buffer in
             visionService.processFrame(buffer)
+        }
+        
+        // Start live activity if it's not already running
+        if LiveActivityManager.shared.currentActivity == nil {
+            LiveActivityManager.shared.startActivity()
         }
     }
     
