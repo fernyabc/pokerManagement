@@ -1,12 +1,57 @@
 name: pokerManagement
 options:
   bundleIdPrefix: com.pokermanagement
+packages:
+  WebRTC:
+    url: https://github.com/stasel/WebRTC
+    from: "140.0.0"
+  Starscream:
+    url: https://github.com/daltoniam/Starscream
+    from: "4.0.0"
 targets:
   pokerManagement:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
-    sources: [pokerManagement]
+    sources: [
+        "pokerManagement",
+        "pokerManagement/Views",
+        "pokerManagement/Models",
+        "pokerManagement/Services"
+    ]
+    dependencies:
+      - package: WebRTC
+      - package: Starscream
+    info:
+      path: pokerManagement/Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations: {}
+options:
+  bundleIdPrefix: com.pokermanagement
+packages:
+  WebRTC:
+    url: https://github.com/stasel/WebRTC
+    from: "140.0.0"
+  Starscream:
+    url: https://github.com/daltoniam/Starscream
+    from: "4.0.0"
+targets:
+  pokerManagement:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources: [
+        "pokerManagement",
+        "pokerManagement/Views",
+        "pokerManagement/Models",
+        "pokerManagement/Services"
+    ]
+    dependencies:
+      - package: WebRTC
+      - package: Starscream
     info:
       path: pokerManagement/Info.plist
       properties:
