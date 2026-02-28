@@ -20,6 +20,7 @@
 		78B7DAB78C02648F2C1402E0 /* PokerSuggestionAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0730EE04EB5F1D447534736 /* PokerSuggestionAttributes.swift */; };
 		79138B07A4CED7CA67D39EC6 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464BA9BD80F440E9E41A4F54 /* BackendService.swift */; };
 		7EB2D20A57E2CC977949817D /* GTOSolverAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF33429679F899A615C4441 /* GTOSolverAPI.swift */; };
+		8B6D08FF3B9B1E5F8DBB05B9 /* PokerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 693B0D83F71A79C40FEB35A7 /* PokerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9D45FD3BCFB74F18058DAB3E /* PokerSuggestionAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0730EE04EB5F1D447534736 /* PokerSuggestionAttributes.swift */; };
 		CA1753113F32DB6540428A9D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F036D9B56C447AD0E07F8C /* ContentView.swift */; };
 		DD1F9890B6B86A7036488FD9 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DFD6AD764F158455A7CE5A /* CardView.swift */; };
@@ -27,6 +28,30 @@
 		F2735292D7371D1A30B98A14 /* PokerTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0A559CB2A09E2A821D3B4B /* PokerTableView.swift */; };
 		F5207AB36AD08D9963186F0E /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = C7FB064C5B2333226F7FD2BF /* Starscream */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9DD74778E3FC8AAA5EB5BA9C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D772AEAD1B746A8003320D01 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8263D80828593D5834A3C7F0;
+			remoteInfo = PokerWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		01498754C2478FAEA21FD59C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8B6D08FF3B9B1E5F8DBB05B9 /* PokerWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0A052FE9323A67A56A7DC270 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -166,10 +191,12 @@
 			buildPhases = (
 				AB2A47E3F19C14D257302823 /* Sources */,
 				C6C7B7473309FACB5C8BF8D9 /* Frameworks */,
+				01498754C2478FAEA21FD59C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				CCB8E7A28F0A1D3B4B61BEEC /* PBXTargetDependency */,
 			);
 			name = pokerManagement;
 			packageProductDependencies = (
@@ -246,6 +273,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CCB8E7A28F0A1D3B4B61BEEC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8263D80828593D5834A3C7F0 /* PokerWidgetExtension */;
+			targetProxy = 9DD74778E3FC8AAA5EB5BA9C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		074B1F8B1C0A9290ECBA3161 /* Debug */ = {

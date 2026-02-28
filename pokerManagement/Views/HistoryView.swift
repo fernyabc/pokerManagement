@@ -78,8 +78,5 @@ struct HistoryView: View {
 
 #Preview {
     HistoryView()
-<<<<<<< HEAD
         .modelContainer(for: HandHistory.self, inMemory: true)
-=======
->>>>>>> 3ddcf9b (feat: implement WebRTC live streaming)
 }

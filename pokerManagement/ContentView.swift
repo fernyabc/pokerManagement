@@ -95,6 +95,7 @@ struct ContentView: View {
                 ev: suggestion.ev,
                 reasoning: suggestion.reasoning
             )
+        }
     }
     
     private var statusBanner: some View {
