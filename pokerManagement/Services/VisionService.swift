@@ -22,24 +22,14 @@ class VisionService: ObservableObject {
     // We use a sequence request handler for continuous video processing
     private var sequenceHandler = VNSequenceRequestHandler()
     
-    // To be loaded from Settings or App bundle
-    private var customYOLOModel: VNCoreMLModel?
+    private let cardDetectionService = CardDetectionService()
     
     init() {
         setupVisionModels()
     }
     
     private func setupVisionModels() {
-        // Load the compiled CoreML model (.mlmodelc)
-        // using the name provided in Settings (e.g., "YOLO_Cards_v2")
-        // Example:
-        // guard let modelURL = Bundle.main.url(forResource: "YOLO_Cards_v2", withExtension: "mlmodelc"),
-        //       let mlModel = try? MLModel(contentsOf: modelURL),
-        //       let visionModel = try? VNCoreMLModel(for: mlModel) else {
-        //     print("Failed to load Vision ML model")
-        //     return
-        // }
-        // self.customYOLOModel = visionModel
+        // CardDetectionService handles the CoreML model loading
     }
     
     /// Called when a frame is received from the Ray-Ban Meta stream workaround
@@ -50,22 +40,39 @@ class VisionService: ObservableObject {
         DispatchQueue.main.async { self.isProcessing = true }
         
         // Setup Vision Request (using generic text/barcode as fallback if CoreML not loaded)
-        var requests: [VNRequest] = []
-        
-        if let yoloModel = customYOLOModel {
-            let coreMLRequest = VNCoreMLRequest(model: yoloModel) { [weak self] request, error in
-                self?.handleCoreMLResults(request: request, error: error)
+        if cardDetectionService.modelLoaded {
+            cardDetectionService.detectCards(in: pixelBuffer) { [weak self] results, error in
+                guard let results = results else { return }
+                
+                var newHoleCards: [String] = []
+                var newCommunityCards: [String] = []
+                
+                for observation in results {
+                    guard let topLabel = observation.labels.first?.identifier else { continue }
+                    
+                    if observation.boundingBox.origin.y < 0.3 {
+                        newHoleCards.append(topLabel)
+                    } else {
+                        newCommunityCards.append(topLabel)
+                    }
+                }
+                
+                self?.updateStateIfValid(hole: newHoleCards, community: newCommunityCards)
+                
+                DispatchQueue.main.async {
+                    self?.isProcessing = false
+                }
             }
-            coreMLRequest.imageCropAndScaleOption = .scaleFill
-            requests.append(coreMLRequest)
-        } else {
-            // Fallback for simulation / MVP: Text Recognition (trying to read numbers/suits off cards)
-            let textRequest = VNRecognizeTextRequest { [weak self] request, error in
-                self?.handleTextResults(request: request, error: error)
-            }
-            textRequest.recognitionLevel = .accurate
-            requests.append(textRequest)
+            return
         }
+        
+        var requests: [VNRequest] = []
+        // Fallback for simulation / MVP: Text Recognition (trying to read numbers/suits off cards)
+        let textRequest = VNRecognizeTextRequest { [weak self] request, error in
+            self?.handleTextResults(request: request, error: error)
+        }
+        textRequest.recognitionLevel = .accurate
+        requests.append(textRequest)
         
         // Execute Vision Pipeline on background thread
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -82,26 +89,7 @@ class VisionService: ObservableObject {
     
     // MARK: - Result Handlers
     
-    private func handleCoreMLResults(request: VNRequest, error: Error?) {
-        guard let results = request.results as? [VNRecognizedObjectObservation] else { return }
-        
-        var newHoleCards: [String] = []
-        var newCommunityCards: [String] = []
-        
-        for observation in results {
-            // e.g. "As" (Ace of Spades)
-            guard let topLabel = observation.labels.first?.identifier else { continue }
-            
-            // Basic heuristic: bounding box lower down the screen = Hole Cards, higher = Community Cards
-            if observation.boundingBox.origin.y < 0.3 {
-                newHoleCards.append(topLabel)
-            } else {
-                newCommunityCards.append(topLabel)
-            }
-        }
-        
-        updateStateIfValid(hole: newHoleCards, community: newCommunityCards)
-    }
+
     
     private func handleTextResults(request: VNRequest, error: Error?) {
         // Mock fallback when no ML Model is provided, simply returns the hardcoded MVP state
