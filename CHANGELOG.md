@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added [2026-02-28 00:00:48]
+- Implemented `CardDetectionService` to dynamically load CoreML models (specifically `yolov8-playing-cards.mlmodelc`) to enable real-time detection without crashing if the model is absent.
+- Integrated `CardDetectionService` into `VisionService` to parse card ranks and suits based on bounding box positioning (e.g. hole cards vs community cards).
+- Preserved mock text detection fallback in `VisionService` when the CoreML model is not loaded.
+
 ### Added
 - Implemented WebRTC live streaming functionality.
 - Added `WebRTCStreamCaptureService` to handle WebRTC connections in the Swift client.
