@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.pokermanagement.service.CameraVideoInput
 import com.pokermanagement.service.GtoNotificationService
@@ -20,6 +21,7 @@ import com.pokermanagement.service.WebRTCVideoInput
 import com.pokermanagement.ui.MainScreen
 import com.pokermanagement.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
+import java.io.File
 
 class MainActivity : ComponentActivity() {
 
@@ -61,7 +63,8 @@ class MainActivity : ComponentActivity() {
                             "camera" -> startCameraInput()
                             "webrtc" -> startWebRtcInput(uiState.solverEndpoint)
                         }
-                    }
+                    },
+                    onExportCsv = { shareCsvFile(viewModel.generateCsvContent()) }
                 )
             }
         }
@@ -81,6 +84,18 @@ class MainActivity : ComponentActivity() {
     private fun startCameraInput() {
         val input = CameraVideoInput(this, this)
         viewModel.setVideoInput(input, "camera")
+    }
+
+    private fun shareCsvFile(csvContent: String) {
+        val file = File(cacheDir, "hand_history.csv")
+        file.writeText(csvContent)
+        val uri = FileProvider.getUriForFile(this, "$packageName.provider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/csv"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, "Export Hand History"))
     }
 
     private fun startWebRtcInput(endpoint: String) {
