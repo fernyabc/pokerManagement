@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./poker_hands.db
+      - CACHE_DB_PATH=gto_cache.db
+      # Uncomment and set to enable LLM reasoning:
+      # - OPENAI_API_KEY=sk-...
+      # Uncomment if TexasSolver binary is mounted:
+      # - TEXAS_SOLVER_BIN=/opt/texassolver/console_solver
+    volumes:
+      # Persist databases across container restarts
+      - backend-data:/app
+    restart: unless-stopped
+
+volumes:
+  backend-data:

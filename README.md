@@ -57,7 +57,9 @@ State Lock Engine (0.5s stable detection)
 | **TexasSolver Wrapper** | `solver_wrapper.py` | Wraps the TexasSolver CFR++ binary. Writes temp input files, invokes the solver, parses results. Falls back to a deterministic mock when the binary is not installed. |
 | **LLM Engine** | `llm_engine.py` | GPT-4o powered analysis for preflop (with embedded GTO opening charts) and multiway pots. Falls back to static chart lookup when no API key is set. |
 | **Player Profiling** | `player_profile.py` | In-memory HUD tracking per-player VPIP/PFR stats and labeling (LAG, TAG, Nit, Calling Station). |
-| **Hand History DB** | `database.py` + `models.py` | SQLAlchemy + SQLite persistence for completed hands. |
+| **Hand History DB** | `database.py` + `models.py` | Async SQLAlchemy + aiosqlite persistence for completed hands. |
+| **Solution Cache** | `cache.py` | SQLite-backed pre-computed GTO solution cache for instant lookups on common spots. |
+| **Batch Solver** | `batch_solve.py` | Offline script that pre-computes ~200 flop textures × bet configs and populates the cache. |
 
 ### API Reference
 
@@ -71,8 +73,10 @@ All endpoints require a `Bearer <token>` header (any value accepted in dev mode)
 | `POST` | `/v1/hud/update` | Update opponent VPIP/PFR profile |
 | `POST` | `/v1/log_hand` | Save a completed hand to the database |
 | `GET`  | `/v1/hands` | List recent hand history |
-| `GET`  | `/health` | Health check |
-| `WS`   | `/ws` | WebRTC signaling relay |
+| `GET`  | `/v1/solve/status/{job_id}` | Poll for async solve result (cache miss) |
+| `GET`  | `/v1/cache/stats` | Return number of cached solutions |
+| `GET`  | `/health` | Health check (includes cache stats) |
+| `WS`   | `/ws` | WebRTC signaling relay (also pushes solve results) |
 
 ## Prerequisites
 
@@ -109,6 +113,50 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 The server runs on `http://0.0.0.0:8000`.
 
+#### Docker
+
+```bash
+cd backend-mock
+
+# Build and run with Docker Compose
+docker compose up --build
+
+# Or build manually
+docker build -t poker-backend .
+docker run -p 8000:8000 poker-backend
+```
+
+The Docker build automatically pre-populates the GTO solution cache with ~50 common flop textures using the mock solver. To populate with real TexasSolver results, mount the binary and run the batch solver:
+
+```bash
+docker run -v /path/to/console_solver:/opt/solver/console_solver \
+  -e TEXAS_SOLVER_BIN=/opt/solver/console_solver \
+  poker-backend python batch_solve.py --limit 200
+```
+
+#### Pre-computed Solution Cache
+
+The backend includes a SQLite-backed cache for pre-computed GTO solutions. Common spots return instantly (<1ms) instead of waiting for live solver computation.
+
+```bash
+# Pre-populate the cache (runs offline, uses mock solver by default)
+cd backend-mock
+python batch_solve.py
+
+# Limit to first 50 flop textures for quick testing
+python batch_solve.py --limit 50
+
+# Dry run — print boards without solving
+python batch_solve.py --dry-run
+
+# Check cache stats via API
+curl -H "Authorization: Bearer test" http://localhost:8000/v1/cache/stats
+```
+
+Cache behavior on `/v1/solve/gto`:
+- **Cache hit**: Returns instantly with `cached: true`.
+- **Cache miss**: Solves in the background, returns a `job_id`. Poll via `GET /v1/solve/status/{job_id}` or listen on the WebSocket for `solve_complete` events.
+
 #### Backend Environment Variables
 
 Copy `.env.example` to `.env` and configure:
@@ -116,8 +164,9 @@ Copy `.env.example` to `.env` and configure:
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `OPENAI_API_KEY` | No | unset | Enables GPT-4o reasoning for LLM engine. Falls back to static charts if unset. |
-| `DATABASE_URL` | No | `sqlite:///./poker_hands.db` | SQLAlchemy database URL. |
+| `DATABASE_URL` | No | `sqlite+aiosqlite:///./poker_hands.db` | Async SQLAlchemy database URL. |
 | `TEXAS_SOLVER_BIN` | No | auto-detect | Path to TexasSolver `console_solver` binary. Uses mock solver if unset. |
+| `CACHE_DB_PATH` | No | `gto_cache.db` | Path to the pre-computed GTO solution cache database. |
 
 #### Quick Test
 
@@ -226,8 +275,12 @@ pokerManagement/
 │   ├── solver_wrapper.py         # TexasSolver CLI wrapper
 │   ├── llm_engine.py             # LLM analysis engine
 │   ├── player_profile.py         # Opponent HUD profiling
-│   ├── database.py               # SQLAlchemy + SQLite setup
+│   ├── cache.py                  # Pre-computed GTO solution cache
+│   ├── batch_solve.py            # Batch solver for cache population
+│   ├── database.py               # Async SQLAlchemy + aiosqlite setup
 │   ├── models.py                 # HandHistory model
+│   ├── Dockerfile                # Docker container for backend
+│   ├── docker-compose.yml        # Docker Compose config
 │   ├── requirements.txt          # Python dependencies
 │   └── .env.example              # Environment variable template
 ├── scripts/
