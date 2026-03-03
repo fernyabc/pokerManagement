@@ -82,10 +82,10 @@ class VisionService: ObservableObject {
                 var newHoleCards: [String] = []
                 var newCommunityCards: [String] = []
 
-                for observation in results {
-                    guard let topLabel = observation.labels.first?.identifier else { continue }
-                    let card = self?.normalizeCardLabel(topLabel) ?? topLabel
-                    if observation.boundingBox.origin.y < 0.3 {
+                for detection in results {
+                    let card = self?.normalizeCardLabel(detection.label) ?? detection.label
+                    // Vision bounding box origin is bottom-left; y < 0.3 → bottom of frame → hole cards.
+                    if detection.boundingBox.origin.y < 0.3 {
                         newHoleCards.append(card)
                     } else {
                         newCommunityCards.append(card)
