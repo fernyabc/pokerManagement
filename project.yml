@@ -29,6 +29,8 @@ targets:
       properties:
         UILaunchScreen: {}
         NSSupportsLiveActivities: YES
+        NSMicrophoneUsageDescription: "Microphone access is needed to input pot and bet sizes by voice."
+        NSSpeechRecognitionUsageDescription: "Speech recognition is used to parse spoken pot and bet amounts."
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
           UISceneConfigurations: {}
@@ -36,6 +38,8 @@ targets:
     type: app-extension
     platform: iOS
     deploymentTarget: "17.0"
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.pokermanagement.pokerManagement.PokerWidgetExtension
     sources: [
         "PokerWidget",
         "pokerManagement/Models/PokerSuggestionAttributes.swift"
