@@ -1,19 +1,28 @@
 import asyncio
 import json
+import uuid
 from contextlib import asynccontextmanager
 from fastapi import WebSocket, WebSocketDisconnect, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
-from typing import List, Optional
-from sqlalchemy.orm import Session
+from typing import Dict, List, Optional
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from player_profile import hud_memory
 from llm_engine import LLMHeuristicsEngine
 from solver_wrapper import SolverInput, solve as solver_solve
 from database import init_db, get_db
 from models import HandHistory
+from cache import solution_cache
+
+
+# ---------------------------------------------------------------------------
+# In-memory job tracker for async solves (cache misses)
+# ---------------------------------------------------------------------------
+
+_jobs: Dict[str, Optional[dict]] = {}  # job_id -> result dict or None (pending)
 
 
 # ---------------------------------------------------------------------------
@@ -22,8 +31,10 @@ from models import HandHistory
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    await init_db()
+    await solution_cache.init()
     yield
+    await solution_cache.close()
 
 
 app = FastAPI(title="Poker GTO Solver API", lifespan=lifespan)
@@ -45,12 +56,16 @@ class ConnectionManager:
         self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
 
-    async def broadcast(self, message: str, sender: WebSocket):
+    async def broadcast(self, message: str, sender: WebSocket | None = None):
         for connection in self.active_connections:
             if connection is not sender:
-                await connection.send_text(message)
+                try:
+                    await connection.send_text(message)
+                except Exception:
+                    pass
 
 manager = ConnectionManager()
 
@@ -100,6 +115,8 @@ class SolveResponse(BaseModel):
     ev: float
     exploitability: float
     iterations: int
+    cached: bool = False
+    job_id: Optional[str] = None
 
 class LLMSolveRequest(BaseModel):
     """Request body for the LLM preflop/multiway endpoint."""
@@ -216,12 +233,47 @@ async def solve_poker_state(state: PokerState, authorization: Optional[str] = He
 
 
 # ---------------------------------------------------------------------------
-# Endpoints — TexasSolver wrapper  (Task 1)
+# Async background solve helper
+# ---------------------------------------------------------------------------
+
+async def _background_solve(job_id: str, inp: SolverInput) -> None:
+    """Run solver in the background, store result, broadcast via WebSocket."""
+    try:
+        result = await solver_solve(inp)
+        # Cache the result for future requests
+        await solution_cache.store(inp, result)
+        result_dict = {
+            "strategy": result.strategy,
+            "ev": result.ev,
+            "exploitability": result.exploitability,
+            "iterations": result.iterations,
+            "cached": False,
+            "job_id": job_id,
+        }
+        _jobs[job_id] = result_dict
+        # Broadcast to all connected WebSocket clients
+        await manager.broadcast(json.dumps({
+            "type": "solve_complete",
+            "job_id": job_id,
+            "result": result_dict,
+        }))
+    except Exception as e:
+        _jobs[job_id] = {"error": str(e), "job_id": job_id}
+
+
+# ---------------------------------------------------------------------------
+# Endpoints — TexasSolver wrapper  (Task 1 + Task 4 cache)
 # ---------------------------------------------------------------------------
 
 @app.post("/v1/solve/gto", response_model=SolveResponse)
 async def solve_with_texas_solver(req: SolveRequest, authorization: Optional[str] = Header(None)):
-    """Heads-up postflop GTO solve via TexasSolver (or mock fallback)."""
+    """
+    Heads-up postflop GTO solve via TexasSolver (or mock fallback).
+
+    Checks the pre-computed cache first for instant results. On cache miss,
+    queues a background solve and returns a job_id that can be polled via
+    GET /v1/solve/status/{job_id} or watched via WebSocket.
+    """
     _check_auth(authorization)
 
     if len(req.board) < 3:
@@ -243,14 +295,60 @@ async def solve_with_texas_solver(req: SolveRequest, authorization: Optional[str
     if req.range_oop:
         inp.range_oop = req.range_oop
 
-    result = await solver_solve(inp)
+    # --- Cache lookup ---
+    cached_result = await solution_cache.lookup(inp)
+    if cached_result is not None:
+        return SolveResponse(
+            strategy=cached_result.strategy,
+            ev=cached_result.ev,
+            exploitability=cached_result.exploitability,
+            iterations=cached_result.iterations,
+            cached=True,
+        )
+
+    # --- Cache miss: queue background solve ---
+    job_id = str(uuid.uuid4())
+    _jobs[job_id] = None  # Mark as pending
+    asyncio.create_task(_background_solve(job_id, inp))
+
+    # Return immediately with the mock/fast result + job_id for tracking
+    # The client can poll /v1/solve/status/{job_id} for the real result
+    quick_result = await solver_solve(inp)
+    await solution_cache.store(inp, quick_result)
 
     return SolveResponse(
-        strategy=result.strategy,
-        ev=result.ev,
-        exploitability=result.exploitability,
-        iterations=result.iterations,
+        strategy=quick_result.strategy,
+        ev=quick_result.ev,
+        exploitability=quick_result.exploitability,
+        iterations=quick_result.iterations,
+        cached=False,
+        job_id=job_id,
     )
+
+
+@app.get("/v1/solve/status/{job_id}")
+async def solve_status(job_id: str, authorization: Optional[str] = Header(None)):
+    """Poll for the result of an async solve job."""
+    _check_auth(authorization)
+
+    if job_id not in _jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    result = _jobs[job_id]
+    if result is None:
+        return {"status": "solving", "job_id": job_id}
+
+    # Clean up completed job
+    del _jobs[job_id]
+    return {"status": "complete", "job_id": job_id, "result": result}
+
+
+@app.get("/v1/cache/stats")
+async def cache_stats(authorization: Optional[str] = Header(None)):
+    """Return cache statistics."""
+    _check_auth(authorization)
+    count = await solution_cache.count()
+    return {"cached_solutions": count}
 
 
 # ---------------------------------------------------------------------------
@@ -298,11 +396,11 @@ async def solve_llm(req: LLMSolveRequest, authorization: Optional[str] = Header(
 
 
 # ---------------------------------------------------------------------------
-# Endpoints — Hand history logging  (Task 7)
+# Endpoints — Hand history logging  (Task 7) — async
 # ---------------------------------------------------------------------------
 
 @app.post("/v1/log_hand")
-async def log_hand(req: HandLogRequest, authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
+async def log_hand(req: HandLogRequest, authorization: Optional[str] = Header(None), db: AsyncSession = Depends(get_db)):
     """Persist a completed poker round to the database."""
     _check_auth(authorization)
 
@@ -321,16 +419,19 @@ async def log_hand(req: HandLogRequest, authorization: Optional[str] = Header(No
         result=req.result,
     )
     db.add(record)
-    db.commit()
-    db.refresh(record)
+    await db.commit()
+    await db.refresh(record)
 
     return {"id": record.id, "round_id": record.round_id, "status": "saved"}
 
 
 @app.get("/v1/hands")
-async def list_hands(limit: int = 50, db: Session = Depends(get_db)):
+async def list_hands(limit: int = 50, db: AsyncSession = Depends(get_db)):
     """Retrieve recent hand history records."""
-    hands = db.query(HandHistory).order_by(HandHistory.timestamp.desc()).limit(limit).all()
+    from sqlalchemy import select
+    stmt = select(HandHistory).order_by(HandHistory.timestamp.desc()).limit(limit)
+    result = await db.execute(stmt)
+    hands = result.scalars().all()
     return [
         {
             "id": h.id,
@@ -350,8 +451,9 @@ async def list_hands(limit: int = 50, db: Session = Depends(get_db)):
 # ---------------------------------------------------------------------------
 
 @app.get("/health")
-def health_check():
-    return {"status": "ok"}
+async def health_check():
+    cache_count = await solution_cache.count()
+    return {"status": "ok", "cached_solutions": cache_count}
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
