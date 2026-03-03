@@ -1,0 +1,12 @@
+.gradle/
+build/
+local.properties
+*.npy
+*.npy.zip
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
