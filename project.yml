@@ -23,6 +23,7 @@ targets:
     dependencies:
       - package: WebRTC
       - package: Starscream
+      - target: PokerWidgetExtension
     info:
       path: pokerManagement/Info.plist
       properties:
