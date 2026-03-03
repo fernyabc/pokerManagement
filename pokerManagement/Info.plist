@@ -18,6 +18,8 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is needed to capture the poker table when smart glasses are not connected.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access is needed to input pot and bet sizes by voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
