@@ -216,6 +216,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun stopMicInput() = speechInputService.stopListening()
     fun resetState() = visionService.resetStateLock()
 
+    fun generateCsvContent(): String {
+        val formatter = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US)
+        fun quoted(s: String) = "\"${s.replace("\"", "\"\"")}\""
+        val header = "Timestamp,Hole Cards,Community Cards,Action,Pot Size,Reasoning"
+        val rows = _uiState.value.handHistory.map { hand ->
+            val ts = quoted(formatter.format(java.util.Date(hand.timestamp)))
+            val hole = quoted(hand.holeCards)
+            val community = quoted(hand.communityCards)
+            val action = quoted(hand.action)
+            val pot = hand.potSize.toString()
+            val reasoning = quoted(hand.reasoning)
+            "$ts,$hole,$community,$action,$pot,$reasoning"
+        }
+        return (listOf(header) + rows).joinToString("\n")
+    }
+
     fun saveSetting(key: String, value: String) {
         viewModelScope.launch {
             dataStore.edit { prefs ->

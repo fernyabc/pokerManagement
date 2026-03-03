@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -102,7 +106,7 @@ fun HandHistoryItem(hand: HandHistory) {
 }
 
 @Composable
-fun HistoryScreen(hands: List<HandHistory>, modifier: Modifier = Modifier) {
+fun HistoryScreen(hands: List<HandHistory>, onExportCsv: () -> Unit, modifier: Modifier = Modifier) {
     if (hands.isEmpty()) {
         Column(
             modifier = modifier
@@ -129,6 +133,26 @@ fun HistoryScreen(hands: List<HandHistory>, modifier: Modifier = Modifier) {
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${hands.size} Hand${if (hands.size == 1) "" else "s"}",
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontSize = 13.sp
+                    )
+                    IconButton(onClick = onExportCsv) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Export CSV",
+                            tint = Color(0xFF7C83FD)
+                        )
+                    }
+                }
+            }
             items(hands, key = { it.id }) { hand ->
                 HandHistoryItem(hand)
             }

@@ -59,7 +59,8 @@ fun MainScreen(
     onStopMic: () -> Unit,
     onResetState: () -> Unit,
     onSaveSetting: (String, String) -> Unit,
-    onVideoInputChanged: (String) -> Unit
+    onVideoInputChanged: (String) -> Unit,
+    onExportCsv: () -> Unit
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var showSettings by remember { mutableStateOf(false) }
@@ -157,6 +158,7 @@ fun MainScreen(
             )
             1 -> HistoryScreen(
                 hands = uiState.handHistory,
+                onExportCsv = onExportCsv,
                 modifier = Modifier.padding(paddingValues)
             )
         }
