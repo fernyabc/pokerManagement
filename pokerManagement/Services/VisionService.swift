@@ -18,6 +18,26 @@ struct DetectedPokerState: Codable {
 /// Includes a state lock engine that requires 0.5s of stable card detection
 /// before publishing a locked state to downstream consumers.
 class VisionService: ObservableObject {
+
+    // MARK: - YOLO Label → Standard Poker Notation
+
+    /// Converts a YOLO model class label (e.g. "10C", "AC", "KD") to standard
+    /// poker notation (e.g. "Tc", "Ac", "Kd").
+    ///  - "10" rank becomes "T"
+    ///  - Suit letter is lowercased
+    private func normalizeCardLabel(_ label: String) -> String {
+        var rank: String
+        var suit: String
+
+        if label.hasPrefix("10") {
+            rank = "T"
+            suit = String(label.dropFirst(2))
+        } else {
+            rank = String(label.prefix(1))
+            suit = String(label.dropFirst(1))
+        }
+        return rank + suit.lowercased()
+    }
     @Published var currentState = DetectedPokerState()
     @Published var isProcessing = false
     @Published var isStateLocked = false
@@ -64,10 +84,11 @@ class VisionService: ObservableObject {
 
                 for observation in results {
                     guard let topLabel = observation.labels.first?.identifier else { continue }
+                    let card = self?.normalizeCardLabel(topLabel) ?? topLabel
                     if observation.boundingBox.origin.y < 0.3 {
-                        newHoleCards.append(topLabel)
+                        newHoleCards.append(card)
                     } else {
-                        newCommunityCards.append(topLabel)
+                        newCommunityCards.append(card)
                     }
                 }
 
