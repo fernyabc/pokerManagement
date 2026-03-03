@@ -14,67 +14,76 @@ struct DetectedPokerState: Codable {
     var potSize: Double = 0.0
 }
 
-/// The Vision Pipeline based on Apple Vision Framework
+/// The Vision Pipeline based on Apple Vision Framework.
+/// Includes a state lock engine that requires 0.5s of stable card detection
+/// before publishing a locked state to downstream consumers.
 class VisionService: ObservableObject {
     @Published var currentState = DetectedPokerState()
     @Published var isProcessing = false
-    
-    // We use a sequence request handler for continuous video processing
+    @Published var isStateLocked = false
+
     private var sequenceHandler = VNSequenceRequestHandler()
-    
     private let cardDetectionService = CardDetectionService()
-    
+
+    // MARK: - State Lock Engine
+
+    /// How long (seconds) the detected cards must remain stable before locking.
+    private let lockStabilityDuration: TimeInterval = 0.5
+
+    /// The candidate state being tracked for stability.
+    private var candidateHoleCards: [String] = []
+    private var candidateCommunityCards: [String] = []
+
+    /// Timestamp when the current candidate first appeared.
+    private var candidateFirstSeen: Date?
+
     init() {
         setupVisionModels()
     }
-    
+
     private func setupVisionModels() {
         // CardDetectionService handles the CoreML model loading
     }
-    
-    /// Called when a frame is received from the Ray-Ban Meta stream workaround
+
+    /// Called when a frame is received from any VideoInputSource.
     func processFrame(_ buffer: CMSampleBuffer) {
-        guard !isProcessing else { return } // Drop frames if backend is busy
+        guard !isProcessing else { return }
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(buffer) else { return }
-        
+
         DispatchQueue.main.async { self.isProcessing = true }
-        
-        // Setup Vision Request (using generic text/barcode as fallback if CoreML not loaded)
+
         if cardDetectionService.modelLoaded {
             cardDetectionService.detectCards(in: pixelBuffer) { [weak self] results, error in
+                defer {
+                    DispatchQueue.main.async { self?.isProcessing = false }
+                }
                 guard let results = results else { return }
-                
+
                 var newHoleCards: [String] = []
                 var newCommunityCards: [String] = []
-                
+
                 for observation in results {
                     guard let topLabel = observation.labels.first?.identifier else { continue }
-                    
                     if observation.boundingBox.origin.y < 0.3 {
                         newHoleCards.append(topLabel)
                     } else {
                         newCommunityCards.append(topLabel)
                     }
                 }
-                
-                self?.updateStateIfValid(hole: newHoleCards, community: newCommunityCards)
-                
-                DispatchQueue.main.async {
-                    self?.isProcessing = false
-                }
+
+                self?.evaluateStateLock(hole: newHoleCards.sorted(), community: newCommunityCards.sorted())
             }
             return
         }
-        
+
+        // Fallback: Text Recognition (mock state for development)
         var requests: [VNRequest] = []
-        // Fallback for simulation / MVP: Text Recognition (trying to read numbers/suits off cards)
         let textRequest = VNRecognizeTextRequest { [weak self] request, error in
             self?.handleTextResults(request: request, error: error)
         }
         textRequest.recognitionLevel = .accurate
         requests.append(textRequest)
-        
-        // Execute Vision Pipeline on background thread
+
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             defer {
                 DispatchQueue.main.async { self?.isProcessing = false }
@@ -86,14 +95,61 @@ class VisionService: ObservableObject {
             }
         }
     }
-    
-    // MARK: - Result Handlers
-    
 
-    
+    /// Resets the state lock so the engine can detect a new board.
+    func resetStateLock() {
+        candidateHoleCards = []
+        candidateCommunityCards = []
+        candidateFirstSeen = nil
+        DispatchQueue.main.async {
+            self.isStateLocked = false
+        }
+    }
+
+    // MARK: - State Lock Engine
+
+    /// Compare incoming detection against the current candidate.
+    /// If cards match the candidate and have been stable for `lockStabilityDuration`,
+    /// lock the state and publish it.
+    private func evaluateStateLock(hole: [String], community: [String]) {
+        // If already locked with the same cards, skip.
+        if isStateLocked,
+           currentState.holeCards.sorted() == hole,
+           currentState.communityCards.sorted() == community {
+            return
+        }
+
+        // If the board changed while locked, reset and start tracking new candidate.
+        if isStateLocked {
+            resetStateLock()
+        }
+
+        let now = Date()
+
+        if hole == candidateHoleCards && community == candidateCommunityCards {
+            // Same candidate — check if stability threshold is met.
+            if let firstSeen = candidateFirstSeen,
+               now.timeIntervalSince(firstSeen) >= lockStabilityDuration,
+               !hole.isEmpty {
+                // Lock the state.
+                DispatchQueue.main.async {
+                    self.currentState.holeCards = hole
+                    self.currentState.communityCards = community
+                    self.isStateLocked = true
+                }
+            }
+        } else {
+            // New candidate — reset tracking.
+            candidateHoleCards = hole
+            candidateCommunityCards = community
+            candidateFirstSeen = now
+        }
+    }
+
+    // MARK: - Fallback Result Handlers
+
     private func handleTextResults(request: VNRequest, error: Error?) {
-        // Mock fallback when no ML Model is provided, simply returns the hardcoded MVP state
-        // In reality, this would parse text results looking for strings like "A♠" or "10♥"
+        // Mock fallback when no ML Model is provided
         DispatchQueue.main.async {
             self.currentState = DetectedPokerState(
                 holeCards: ["As", "Kd"],
@@ -103,13 +159,7 @@ class VisionService: ObservableObject {
                 myPosition: 3,
                 potSize: 15.5
             )
-        }
-    }
-    
-    private func updateStateIfValid(hole: [String], community: [String]) {
-        DispatchQueue.main.async {
-            self.currentState.holeCards = hole
-            self.currentState.communityCards = community
+            self.isStateLocked = true
         }
     }
 }
