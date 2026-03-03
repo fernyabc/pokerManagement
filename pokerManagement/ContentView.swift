@@ -202,8 +202,8 @@ struct ContentView: View {
             backendService.useMock = true
         } else {
             guard let base = URL(string: solverEndpoint) else { return }
-            backendService.texasSolver = TexasSolverAPI(apiKey: solverAPIKey, endpoint: base.appendingPathComponent("solve"))
-            backendService.llmSolver = LLMSolverAPI(apiKey: solverAPIKey, endpoint: base.appendingPathComponent("solve/llm"))
+            backendService.texasSolver = TexasSolverAPI(apiKey: solverAPIKey, baseURL: base)
+            backendService.llmSolver = LLMSolverAPI(apiKey: solverAPIKey, baseURL: base)
             backendService.useMock = false
         }
     }

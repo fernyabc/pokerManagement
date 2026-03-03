@@ -219,7 +219,7 @@ async def solve_poker_state(state: PokerState, authorization: Optional[str] = He
 # Endpoints — TexasSolver wrapper  (Task 1)
 # ---------------------------------------------------------------------------
 
-@app.post("/solve", response_model=SolveResponse)
+@app.post("/v1/solve/gto", response_model=SolveResponse)
 async def solve_with_texas_solver(req: SolveRequest, authorization: Optional[str] = Header(None)):
     """Heads-up postflop GTO solve via TexasSolver (or mock fallback)."""
     _check_auth(authorization)
@@ -257,7 +257,7 @@ async def solve_with_texas_solver(req: SolveRequest, authorization: Optional[str
 # Endpoints — LLM preflop + multiway  (Task 8)
 # ---------------------------------------------------------------------------
 
-@app.post("/solve/llm", response_model=LLMSolveResponse)
+@app.post("/v1/solve/llm", response_model=LLMSolveResponse)
 async def solve_llm(req: LLMSolveRequest, authorization: Optional[str] = Header(None)):
     """Preflop or multiway analysis via LLM (falls back to static charts)."""
     _check_auth(authorization)
@@ -301,7 +301,7 @@ async def solve_llm(req: LLMSolveRequest, authorization: Optional[str] = Header(
 # Endpoints — Hand history logging  (Task 7)
 # ---------------------------------------------------------------------------
 
-@app.post("/log_hand")
+@app.post("/v1/log_hand")
 async def log_hand(req: HandLogRequest, authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
     """Persist a completed poker round to the database."""
     _check_auth(authorization)
@@ -327,7 +327,7 @@ async def log_hand(req: HandLogRequest, authorization: Optional[str] = Header(No
     return {"id": record.id, "round_id": record.round_id, "status": "saved"}
 
 
-@app.get("/hands")
+@app.get("/v1/hands")
 async def list_hands(limit: int = 50, db: Session = Depends(get_db)):
     """Retrieve recent hand history records."""
     hands = db.query(HandHistory).order_by(HandHistory.timestamp.desc()).limit(limit).all()

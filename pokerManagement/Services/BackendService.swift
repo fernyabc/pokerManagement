@@ -14,7 +14,7 @@ struct GTOSuggestion: Codable {
     let jobId: String?
 }
 
-/// Routes requests: preflop/multiway → POST /solve/llm, HU postflop → POST /solve.
+/// Routes requests: preflop/multiway → POST /v1/solve/llm, HU postflop → POST /v1/solve/gto.
 class BackendService: ObservableObject {
     @Published var latestSuggestion: GTOSuggestion? = nil
     @Published var isFetching = false

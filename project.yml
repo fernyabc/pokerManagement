@@ -29,6 +29,7 @@ targets:
       properties:
         UILaunchScreen: {}
         NSSupportsLiveActivities: YES
+        NSCameraUsageDescription: "Camera access is needed to capture the poker table when smart glasses are not connected."
         NSMicrophoneUsageDescription: "Microphone access is needed to input pot and bet sizes by voice."
         NSSpeechRecognitionUsageDescription: "Speech recognition is used to parse spoken pot and bet amounts."
         UIApplicationSceneManifest:

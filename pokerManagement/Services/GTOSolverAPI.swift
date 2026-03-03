@@ -18,7 +18,7 @@ class MockGTOSolver: GTOSolverProtocol {
     }
 }
 
-// MARK: - TexasSolver (POST /solve)
+// MARK: - TexasSolver (POST /v1/solve/gto)
 
 /// Backend response from the TexasSolver endpoint.
 private struct SolveResponse: Decodable {
@@ -30,14 +30,15 @@ private struct SolveResponse: Decodable {
 
 class TexasSolverAPI: GTOSolverProtocol {
     let apiKey: String
-    let endpoint: URL   // e.g. http://localhost:8000/solve
+    let baseURL: URL    // e.g. http://localhost:8000
 
-    init(apiKey: String, endpoint: URL) {
+    init(apiKey: String, baseURL: URL) {
         self.apiKey = apiKey
-        self.endpoint = endpoint
+        self.baseURL = baseURL
     }
 
     func analyzeState(_ state: DetectedPokerState) async throws -> GTOSuggestion {
+        let endpoint = baseURL.appendingPathComponent("v1/solve/gto")
         // Build the request body the backend expects
         struct SolveRequest: Encodable {
             let board: [String]
@@ -79,7 +80,7 @@ class TexasSolverAPI: GTOSolverProtocol {
     }
 
     func pollForResult(jobId: String, maxAttempts: Int = 60, interval: UInt64 = 3) async throws -> GTOSuggestion {
-        let pollURL = endpoint.deletingLastPathComponent().appendingPathComponent("solve/status/\(jobId)")
+        let pollURL = baseURL.appendingPathComponent("v1/solve/status/\(jobId)")
         for _ in 0..<maxAttempts {
             try await Task.sleep(nanoseconds: interval * 1_000_000_000)
             var req = URLRequest(url: pollURL)
@@ -93,7 +94,7 @@ class TexasSolverAPI: GTOSolverProtocol {
     }
 }
 
-// MARK: - LLM Engine (POST /solve/llm)
+// MARK: - LLM Engine (POST /v1/solve/llm)
 
 /// Backend response from the LLM endpoint.
 private struct LLMSolveResponse: Decodable {
@@ -103,14 +104,15 @@ private struct LLMSolveResponse: Decodable {
 
 class LLMSolverAPI: GTOSolverProtocol {
     let apiKey: String
-    let endpoint: URL   // e.g. http://localhost:8000/solve/llm
+    let baseURL: URL    // e.g. http://localhost:8000
 
-    init(apiKey: String, endpoint: URL) {
+    init(apiKey: String, baseURL: URL) {
         self.apiKey = apiKey
-        self.endpoint = endpoint
+        self.baseURL = baseURL
     }
 
     func analyzeState(_ state: DetectedPokerState) async throws -> GTOSuggestion {
+        let endpoint = baseURL.appendingPathComponent("v1/solve/llm")
         struct LLMRequest: Encodable {
             let holeCards: [String]
             let communityCards: [String]
